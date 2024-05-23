@@ -58,7 +58,7 @@ class IgnitedSkin:
                     output['altRepresentations'][device.value][display_type.value] = {}
                 output['altRepresentations'][device.value][display_type.value][orientation.value] = rep.__dict__()
 
-        return json.dumps(output, indent=4)
+        return json.dumps(output, indent=2)
 
     def save(self, path):
         from .live_skin import LiveSkinItem
