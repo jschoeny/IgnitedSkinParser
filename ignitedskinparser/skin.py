@@ -2,7 +2,8 @@ import json
 import zipfile
 from zipfile import ZipFile
 
-from .types import *
+from .types import Representation, Device, DisplayType, Orientation, Item
+from .enums import GameTypeIdentifier
 
 
 class IgnitedSkin:
@@ -62,7 +63,7 @@ class IgnitedSkin:
         return json.dumps(output, indent=2)
 
     def save(self, path, compress=False):
-        from .live_skin import LiveSkinItem
+        from .live_skin import Image
 
         if not path.endswith('.ignitedskin'):
             raise ValueError("The path must end with '.ignitedskin'")
@@ -90,7 +91,7 @@ class IgnitedSkin:
                                              f"Duplicate names for {files[item.file_name]} and {item.file_path}")
                         files[item.file_name] = item.file_path
                 for item in rep.live_skin_items:
-                    if isinstance(item, LiveSkinItem.Image):
+                    if isinstance(item, Image):
                         if item.file_name in files and files[item.file_name] != item.file_path:
                             raise ValueError(f"File {item.file_name} already exists in the skin.\n"
                                              f"Duplicate names for {files[item.file_name]} and {item.file_path}")

@@ -1,4 +1,4 @@
-import ignitedskinparser.skin as skin
+from ignitedskinparser import IgnitedSkin, GameTypeIdentifier
 import rep_iphone as iphone
 import rep_ipad as ipad
 
@@ -7,10 +7,10 @@ import rep_ipad as ipad
 
 if __name__ == "__main__":
     # Initialize the skin
-    my_skin = skin.IgnitedSkin(
+    my_skin = IgnitedSkin(
         "Standard N64",
         "com.delta.n64.standard",
-        skin.GameTypeIdentifier.N64
+        GameTypeIdentifier.N64
     )
 
     # Add the iPhone representations (defined in rep_iphone.py)

@@ -1,8 +1,5 @@
 import os
-import re
 from abc import abstractmethod, ABC
-
-from ignitedskinparser.types import Rect, Size, Representation
 
 
 class Color:
@@ -94,6 +91,8 @@ class DecryptionMethod:
 
 
 class LiveSkinItems(ABC):
+    from .types import Rect
+
     def __init__(self, frame: Rect, decryption_method: DecryptionMethods | None = None):
         self.frame = frame
         self.decryption_method: DecryptionMethods | None = decryption_method
@@ -116,170 +115,178 @@ class LiveSkinItems(ABC):
         pass
 
 
-class LiveSkinItem:
-    class Image(LiveSkinItems):
-        def __init__(self, frame: Rect, file_path: str, address: Addresses, bit_info: BitInfo,
-                     tiled_image_size: Size, decryption_method: DecryptionMethods | None = None):
-            super().__init__(frame, decryption_method)
-            if not os.path.exists(file_path):
-                raise FileNotFoundError(f"The file {file_path} does not exist.")
-            self.file_path = file_path
-            self.file_name = os.path.basename(file_path)
-            self.address = address
-            self.bit_info = bit_info
-            self.tiled_image_size = tiled_image_size
-            self.kind = 'image'
+class Image(LiveSkinItems):
+    from .types import Rect, Size
 
-        def data_dict(self):
-            return {
-                "address": str(self.address),
-                **self.bit_info.__dict__(),
-                "filename": self.file_name,
-                "size": self.tiled_image_size.__dict__()
+    def __init__(self, frame: Rect, file_path: str, address: Addresses, bit_info: BitInfo,
+                 tiled_image_size: Size, decryption_method: DecryptionMethods | None = None):
+        super().__init__(frame, decryption_method)
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"The file {file_path} does not exist.")
+        self.file_path = file_path
+        self.file_name = os.path.basename(file_path)
+        self.address = address
+        self.bit_info = bit_info
+        self.tiled_image_size = tiled_image_size
+        self.kind = 'image'
+
+    def data_dict(self):
+        return {
+            "address": str(self.address),
+            **self.bit_info.__dict__(),
+            "filename": self.file_name,
+            "size": self.tiled_image_size.__dict__()
+        }
+
+
+class CircularHP(LiveSkinItems):
+    from .types import Rect
+
+    def __init__(self, frame: Rect, hp_address: Addresses, hp_bit_info: BitInfo, hp_max_address: Addresses,
+                 hp_max_bit_info: BitInfo, colors: [Color], decryption_method: DecryptionMethods | None = None):
+        super().__init__(frame, decryption_method)
+        if hp_bit_info.width != hp_max_bit_info.width:
+            raise ValueError("The width of the HP and HP Max bit info must be the same.")
+        self.hp_address = hp_address
+        self.hp_bit_info = hp_bit_info
+        self.hp_max_address = hp_max_address
+        self.hp_max_bit_info = hp_max_bit_info
+        if len(colors) > 3:
+            raise ValueError("There can be no more than 3 colors in a CircularHP item.")
+        if len(colors) < 1:
+            raise ValueError("There must be at least 1 color in a CircularHP item.")
+        while len(colors) < 3:
+            colors.append(colors[-1])
+        self.colors = colors
+        self.kind = 'circularHP'
+
+    def data_dict(self):
+        return {
+            "hpAddress": str(self.hp_address),
+            "hpMaxAddress": str(self.hp_max_address),
+            "bitWidth": self.hp_bit_info.width,
+            "hpBitOffset": self.hp_bit_info.offset,
+            "hpMaxBitOffset": self.hp_max_bit_info.offset,
+            "colors": {
+                "full": str(self.colors[0]),
+                "half": str(self.colors[1]),
+                "quarter": str(self.colors[2])
             }
+        }
 
-    class CircularHP(LiveSkinItems):
-        def __init__(self, frame: Rect, hp_address: Addresses, hp_bit_info: BitInfo, hp_max_address: Addresses,
-                     hp_max_bit_info: BitInfo, colors: [Color], decryption_method: DecryptionMethods | None = None):
-            super().__init__(frame, decryption_method)
-            if hp_bit_info.width != hp_max_bit_info.width:
-                raise ValueError("The width of the HP and HP Max bit info must be the same.")
-            self.hp_address = hp_address
-            self.hp_bit_info = hp_bit_info
-            self.hp_max_address = hp_max_address
-            self.hp_max_bit_info = hp_max_bit_info
-            if len(colors) > 3:
-                raise ValueError("There can be no more than 3 colors in a CircularHP item.")
-            if len(colors) < 1:
-                raise ValueError("There must be at least 1 color in a CircularHP item.")
-            while len(colors) < 3:
-                colors.append(colors[-1])
-            self.colors = colors
-            self.kind = 'circularHP'
 
-        def data_dict(self):
-            return {
-                "hpAddress": str(self.hp_address),
-                "hpMaxAddress": str(self.hp_max_address),
-                "bitWidth": self.hp_bit_info.width,
-                "hpBitOffset": self.hp_bit_info.offset,
-                "hpMaxBitOffset": self.hp_max_bit_info.offset,
-                "colors": {
-                    "full": str(self.colors[0]),
-                    "half": str(self.colors[1]),
-                    "quarter": str(self.colors[2])
-                }
+class RectangularHP(LiveSkinItems):
+    from .types import Rect
+
+    def __init__(self, frame: Rect, hp_address: Addresses, hp_bit_info: BitInfo, hp_max_address: Addresses,
+                 hp_max_bit_info: BitInfo, colors: [Color], decryption_method: DecryptionMethods | None = None):
+        super().__init__(frame, decryption_method)
+        self.hp_address = hp_address
+        self.hp_bit_info = hp_bit_info
+        self.hp_max_address = hp_max_address
+        self.hp_max_bit_info = hp_max_bit_info
+        if len(colors) > 3:
+            raise ValueError("There can be no more than 3 colors in a RectangularHP item.")
+        if len(colors) < 1:
+            raise ValueError("There must be at least 1 color in a RectangularHP item.")
+        while len(colors) < 3:
+            colors.append(colors[-1])
+        self.colors = colors
+        self.kind = 'rectangularHP'
+
+    def data_dict(self):
+        return {
+            "hpAddress": str(self.hp_address),
+            "hpMaxAddress": str(self.hp_max_address),
+            "bitWidth": self.hp_bit_info.width,
+            "hpBitOffset": self.hp_bit_info.offset,
+            "hpMaxBitOffset": self.hp_max_bit_info.offset,
+            "colors": {
+                "full": str(self.colors[0]),
+                "half": str(self.colors[1]),
+                "quarter": str(self.colors[2])
             }
-
-    class RectangularHP(LiveSkinItems):
-        def __init__(self, frame: Rect, hp_address: Addresses, hp_bit_info: BitInfo, hp_max_address: Addresses,
-                     hp_max_bit_info: BitInfo, colors: [Color], decryption_method: DecryptionMethods | None = None):
-            super().__init__(frame, decryption_method)
-            self.hp_address = hp_address
-            self.hp_bit_info = hp_bit_info
-            self.hp_max_address = hp_max_address
-            self.hp_max_bit_info = hp_max_bit_info
-            if len(colors) > 3:
-                raise ValueError("There can be no more than 3 colors in a RectangularHP item.")
-            if len(colors) < 1:
-                raise ValueError("There must be at least 1 color in a RectangularHP item.")
-            while len(colors) < 3:
-                colors.append(colors[-1])
-            self.colors = colors
-            self.kind = 'rectangularHP'
-
-        def data_dict(self):
-            return {
-                "hpAddress": str(self.hp_address),
-                "hpMaxAddress": str(self.hp_max_address),
-                "bitWidth": self.hp_bit_info.width,
-                "hpBitOffset": self.hp_bit_info.offset,
-                "hpMaxBitOffset": self.hp_max_bit_info.offset,
-                "colors": {
-                    "full": str(self.colors[0]),
-                    "half": str(self.colors[1]),
-                    "quarter": str(self.colors[2])
-                }
-            }
-
-    class Number(LiveSkinItems):
-        def __init__(self, frame: Rect, address: Addresses, bit_info: BitInfo, font_size: float, font_color: Color,
-                     font_name: str = None, decryption_method: DecryptionMethods | None = None):
-            super().__init__(frame, decryption_method)
-            self.address = address
-            self.bit_info = bit_info
-            self.font_size = font_size
-            self.font_color = font_color
-            self.font_name = font_name
-            self.kind = 'number'
-
-        def data_dict(self):
-            output = {
-                "address": str(self.address),
-                **self.bit_info.__dict__(),
-                "fontSize": self.font_size,
-                "color": str(self.font_color)
-            }
-            if self.font_name:
-                output["fontName"] = self.font_name
-            return output
-
-    class Text(LiveSkinItems):
-        def __init__(self, frame: Rect, address: Addresses, bit_info: BitInfo, font_size: float, font_color: Color,
-                     char_map: [str], font_name: str = None, decryption_method: DecryptionMethods | None = None):
-            super().__init__(frame, decryption_method)
-            self.address = address
-            self.bit_info = bit_info
-            self.font_size = font_size
-            self.font_color = font_color
-            self.font_name = font_name
-            self.char_map = char_map
-            self.kind = 'text'
-
-        def data_dict(self):
-            output = {
-                "address": str(self.address)
-                **self.bit_info.__dict__(),
-                "fontSize": self.font_size,
-                "color": str(self.font_color),
-                "charmap": self.char_map
-            }
-            if self.font_name:
-                output["fontName"] = self.font_name
-            return output
-
-    class IndexedText(LiveSkinItems):
-        """
-        This class is used for text that is indexed by a value in memory. For example, a Pokemon's species ID
-        could be used to index a list of species names.
-        """
-        def __init__(self, frame: Rect, address: Addresses, bit_info: BitInfo, font_size: float, font_color: Color,
-                     text: [str], font_name: str = None, decryption_method: DecryptionMethods | None = None):
-            super().__init__(frame, decryption_method)
-            self.address = address
-            self.bit_info = bit_info
-            self.font_size = font_size
-            self.font_color = font_color
-            self.font_name = font_name
-            self.text = text
-            self.kind = 'indexedText'
-
-        def data_dict(self):
-            output = {
-                "address": str(self.address),
-                **self.bit_info.__dict__(),
-                "fontSize": self.font_size,
-                "color": str(self.font_color),
-                "text": self.text
-            }
-            if self.font_name:
-                output["fontName"] = self.font_name
-            return output
+        }
 
 
-# Extend the Representation class to add a method to add live skin items
-def add_live_skin_item(self, item: LiveSkinItems):
-    self.live_skin_items.append(item)
+class Number(LiveSkinItems):
+    from .types import Rect
+
+    def __init__(self, frame: Rect, address: Addresses, bit_info: BitInfo, font_size: float, font_color: Color,
+                 font_name: str = None, decryption_method: DecryptionMethods | None = None):
+        super().__init__(frame, decryption_method)
+        self.address = address
+        self.bit_info = bit_info
+        self.font_size = font_size
+        self.font_color = font_color
+        self.font_name = font_name
+        self.kind = 'number'
+
+    def data_dict(self):
+        output = {
+            "address": str(self.address),
+            **self.bit_info.__dict__(),
+            "fontSize": self.font_size,
+            "color": str(self.font_color)
+        }
+        if self.font_name:
+            output["fontName"] = self.font_name
+        return output
 
 
-Representation.add_live_skin_item = add_live_skin_item
+class Text(LiveSkinItems):
+    from .types import Rect
+
+    def __init__(self, frame: Rect, address: Addresses, bit_info: BitInfo, font_size: float, font_color: Color,
+                 char_map: [str], font_name: str = None, decryption_method: DecryptionMethods | None = None):
+        super().__init__(frame, decryption_method)
+        self.address = address
+        self.bit_info = bit_info
+        self.font_size = font_size
+        self.font_color = font_color
+        self.font_name = font_name
+        self.char_map = char_map
+        self.kind = 'text'
+
+    def data_dict(self):
+        output = {
+            "address": str(self.address),
+            **self.bit_info.__dict__(),
+            "fontSize": self.font_size,
+            "color": str(self.font_color),
+            "charmap": self.char_map
+        }
+        if self.font_name:
+            output["fontName"] = self.font_name
+        return output
+
+
+class IndexedText(LiveSkinItems):
+    from .types import Rect
+
+    """
+    This class is used for text that is indexed by a value in memory. For example, a Pokemon's species ID
+    could be used to index a list of species names.
+    """
+    def __init__(self, frame: Rect, address: Addresses, bit_info: BitInfo, font_size: float, font_color: Color,
+                 text: [str], font_name: str = None, decryption_method: DecryptionMethods | None = None):
+        super().__init__(frame, decryption_method)
+        self.address = address
+        self.bit_info = bit_info
+        self.font_size = font_size
+        self.font_color = font_color
+        self.font_name = font_name
+        self.text = text
+        self.kind = 'indexedText'
+
+    def data_dict(self):
+        output = {
+            "address": str(self.address),
+            **self.bit_info.__dict__(),
+            "fontSize": self.font_size,
+            "color": str(self.font_color),
+            "text": self.text
+        }
+        if self.font_name:
+            output["fontName"] = self.font_name
+        return output

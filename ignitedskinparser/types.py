@@ -1,7 +1,7 @@
 import os
 from typing import ClassVar
 
-from .enums import *
+from .enums import AssetSize, Device, DisplayType, Input, Orientation
 
 
 class Asset:
@@ -156,14 +156,17 @@ class Screen:
 
 
 class Representation:
+    from .live_skin import LiveSkinItems
+
     def __init__(self, device: Device, display_type: DisplayType, orientation: Orientation, mapping_size: Size,
                  extended_edges: ExtendedEdges, translucent: bool = None):
+        from .live_skin import LiveSkinItems
         self.device = device
         self.display_type = display_type
         self.orientation = orientation
         self.__assets: [Asset] = []
         self.__items: [Item | Item.Dpad | Item.Thumbstick] = []
-        self.__liveSkinItems = []
+        self.__liveSkinItems: [LiveSkinItems] = []
         self.__screens = []
         self.mapping_size = mapping_size
         self.extended_edges = extended_edges
@@ -227,5 +230,8 @@ class Representation:
 
     def add_screen(self, screen: Screen):
         self.__screens.append(screen)
+
+    def add_live_skin_item(self, item: LiveSkinItems):
+        self.__liveSkinItems.append(item)
 
 
