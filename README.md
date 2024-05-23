@@ -13,6 +13,8 @@ IgnitedSkinParser is a Python package designed to simplify the creation of custo
 - **Flexible Configuration**: As versatile as working with the info.json file, but without all the debugging headaches.
 - **Comprehensive Skin Definition**: Has everything you need to make an Ignited skin, including assets, items, representations, and LiveSkins.
 
+*Note: LiveSkins are not yet supported in Ignited, but hopefully will be at a later date.*
+
 ## Installation
 
 *Eventually I might get around to uploading this to PyPI, but for now...*
