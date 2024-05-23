@@ -177,6 +177,7 @@ class Representation:
         self.mapping_size = mapping_size
         self.extended_edges = extended_edges
         self.translucent = translucent
+        self.compatible_with_delta = True
 
     def __dict__(self):
         output = {
@@ -232,12 +233,18 @@ class Representation:
         self.__assets.append(asset)
 
     def add_item(self, item: Item | Item.Dpad | Item.Thumbstick):
+        # Mark representation as incompatible with Delta if Ignited-specific inputs are used
+        if isinstance(item, Item):
+            if any(i in item.inputs for i in [Input.RESTART, Input.SCREENSHOT, Input.STATUS_BAR, Input.QUICK_SETTINGS,
+                                              Input.TOGGLE_ALT_REPRESENTATION]):
+                self.compatible_with_delta = False
         self.__items.append(item)
 
     def add_screen(self, screen: Screen):
         self.__screens.append(screen)
 
     def add_live_skin_item(self, item: LiveSkinItems):
+        self.compatible_with_delta = False
         self.__liveSkinItems.append(item)
 
 

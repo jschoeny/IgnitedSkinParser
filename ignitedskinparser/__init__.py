@@ -7,7 +7,7 @@ from .types import (
 from .live_skin import (
     Color, Address, BitInfo, DecryptionMethod, Image, CircularHP, RectangularHP, Number, Text, IndexedText
 )
-from .skin import IgnitedSkin
+from .skin import IgnitedSkin, DeltaSkin
 
 
 class LiveSkin:
@@ -39,6 +39,7 @@ __all__ = [
     'Representation',
     'IndexedText',
     'IgnitedSkin',
+    'DeltaSkin',
     'LiveSkin'
 ]
 
