@@ -161,6 +161,12 @@ class Representation:
     def __init__(self, device: Device, display_type: DisplayType, orientation: Orientation, mapping_size: Size,
                  extended_edges: ExtendedEdges, translucent: bool = None):
         from .live_skin import LiveSkinItems
+        # Edge to edge can only be used with iPhone
+        if display_type == DisplayType.EDGE_TO_EDGE and device != Device.IPHONE:
+            raise ValueError("Edge to edge can only be used with iPhone.")
+        # Split view can only be used with iPad
+        if display_type == DisplayType.SPLIT_VIEW and device != Device.IPAD:
+            raise ValueError("Split view can only be used with iPad.")
         self.device = device
         self.display_type = display_type
         self.orientation = orientation
