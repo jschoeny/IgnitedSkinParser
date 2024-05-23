@@ -1,8 +1,8 @@
 # IgnitedSkinParser
 
-![Python version](https://img.shields.io/badge/python-3.6%2B-blue)
-![GitHub license](https://img.shields.io/github/license/jschoeny/ignitedskinparser)
-![GitHub issues](https://img.shields.io/github/issues/jschoeny/ignitedskinparser)
+[![Python version](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org/downloads/)
+[![GitHub license](https://img.shields.io/github/license/jschoeny/ignitedskinparser)](LICENSE.md)
+[![GitHub issues](https://img.shields.io/github/issues/jschoeny/ignitedskinparser)](https://github.com/jschoeny/ignitedskinparser/issues)
 
 
 IgnitedSkinParser is a Python package designed to simplify the creation of custom controller skins for the Ignited emulator app. It provides built-in error checking, easy configuration, and the ability to export to a `.ignitedskin` file.
@@ -99,7 +99,7 @@ Feel free to contribute to the project by submitting [issues](https://github.com
 
 ### License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE.md) file for details.
 
 ---
 For more information on the components of Delta/Ignited skins, check out this [skin documentation](https://noah978.gitbook.io/delta-docs/skins).
