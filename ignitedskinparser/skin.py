@@ -1,4 +1,5 @@
 import json
+import zipfile
 from zipfile import ZipFile
 
 from .types import *
@@ -60,7 +61,7 @@ class IgnitedSkin:
 
         return json.dumps(output, indent=2)
 
-    def save(self, path):
+    def save(self, path, compress=False):
         from .live_skin import LiveSkinItem
 
         if not path.endswith('.ignitedskin'):
@@ -70,7 +71,9 @@ class IgnitedSkin:
         info_json = self.generate_json()
 
         # Make a zip archive of the skin
-        with ZipFile(path, 'w') as zipf:
+        compression = zipfile.ZIP_DEFLATED if compress else zipfile.ZIP_STORED
+        comp_level = 9 if compress else None
+        with ZipFile(path, 'w', compression=compression, compresslevel=comp_level) as zipf:
             zipf.writestr('info.json', info_json)
             all_reps = self.representations + self.alt_representation
             files = {}
@@ -95,3 +98,4 @@ class IgnitedSkin:
             for file_name, file_path in files.items():
                 zipf.write(file_path, file_name)
 
+        return zipf.filename
