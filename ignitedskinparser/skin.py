@@ -145,8 +145,8 @@ class IgnitedSkin(DeltaSkin):
     def save(self, path, compress=False):
         from .live_skin import Image
 
-        if not path.endswith('.ignitedskin'):
-            raise ValueError("The path must end with '.ignitedskin'")
+        if not path.endswith('.ignitedskin') and not path.endswith('.deltaskin'):
+            raise ValueError("Output file must have a '.ignitedskin' or '.deltaskin' extension.")
 
         # Generate the info.json file
         info_json = self.generate_json()
