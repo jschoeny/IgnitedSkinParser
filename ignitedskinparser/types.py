@@ -44,14 +44,29 @@ class Rect:
 class ExtendedEdges:
     ZERO: ClassVar['ExtendedEdges']
 
-    def __init__(self, top: int, left: int, bottom: int, right: int):
+    def __init__(self, top: int = None, left: int = None, bottom: int = None, right: int = None):
+        if all(s is None for s in [top, left, bottom, right]):
+            raise ValueError("At least one side must be defined.")
         self.top = top
         self.left = left
         self.bottom = bottom
         self.right = right
 
     def __dict__(self):
-        return {"top": self.top, "left": self.left, "bottom": self.bottom, "right": self.right}
+        output = {}
+        if self.top is not None:
+            output['top'] = self.top
+        if self.bottom is not None:
+            output['bottom'] = self.bottom
+        if self.left is not None:
+            output['left'] = self.left
+        if self.right is not None:
+            output['right'] = self.right
+        return output
+
+    @staticmethod
+    def all(all_sides: int):
+        return ExtendedEdges(all_sides, all_sides, all_sides, all_sides)
 
 
 ExtendedEdges.ZERO = ExtendedEdges(0, 0, 0, 0)
@@ -142,7 +157,7 @@ class Screen:
 
 class Representation:
     def __init__(self, device: Device, display_type: DisplayType, orientation: Orientation, mapping_size: Size,
-                 extended_edges: ExtendedEdges, translucent: bool = False):
+                 extended_edges: ExtendedEdges, translucent: bool = None):
         self.device = device
         self.display_type = display_type
         self.orientation = orientation
@@ -162,7 +177,7 @@ class Representation:
         }
         if self.extended_edges:
             output['extendedEdges'] = self.extended_edges.__dict__()
-        if self.translucent:
+        if self.translucent is not None:
             output['translucent'] = self.translucent
 
         for i, asset in enumerate(self.__assets):
