@@ -3,15 +3,19 @@ from abc import abstractmethod, ABC
 
 
 class Color:
-    def __init__(self, r: int, g: int, b: int):
+    def __init__(self, r: int, g: int, b: int, a: int = None):
         self.r = r
         self.g = g
         self.b = b
+        self.a = a
 
     def __str__(self):
         r_hex = hex(self.r)[2:].zfill(2)
         g_hex = hex(self.g)[2:].zfill(2)
         b_hex = hex(self.b)[2:].zfill(2)
+        if self.a is not None:
+            a_hex = hex(self.a)[2:].zfill(2)
+            return f"#{r_hex}{g_hex}{b_hex}{a_hex}"
         return f"#{r_hex}{g_hex}{b_hex}"
 
 
