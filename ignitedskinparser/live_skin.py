@@ -304,3 +304,60 @@ class IndexedText(LiveSkinItems):
         if self.font_name:
             output["fontName"] = self.font_name
         return output
+
+
+class Battery(LiveSkinItems):
+    from .types import Rect
+
+    def __init__(self, frame: Rect, unplugged_file_path: str, unplugged_low_file_path: str, charging_file_path: str,
+                 charging_low_file_path: str):
+        """
+        This class is used to represent the battery indicator of a device (e.g. the LEDs on a Game Boy Advance SP). The
+        battery indicator can have 4 states: unplugged, unplugged with low battery, charging, and charging with low
+        battery. Each state has an associated image.
+        :param frame: The position and size of the battery images on the screen.
+        :param unplugged_file_path: The file path to the image of the battery when the device is not charging.
+        :param unplugged_low_file_path: The file path to the image of the battery when the device is not charging and the battery is low.
+        :param charging_file_path The file path to the image of the battery when the device is charging.
+        :param charging_low_file_path: The file path to the image of the battery when the device is charging and the battery is low.
+        """
+        super().__init__(frame)
+        if not os.path.exists(unplugged_file_path):
+            raise FileNotFoundError(f"The file {unplugged_file_path} does not exist.")
+        if not os.path.exists(unplugged_low_file_path):
+            raise FileNotFoundError(f"The file {unplugged_low_file_path} does not exist.")
+        if not os.path.exists(charging_file_path):
+            raise FileNotFoundError(f"The file {charging_file_path} does not exist.")
+        if not os.path.exists(charging_low_file_path):
+            raise FileNotFoundError(f"The file {charging_low_file_path} does not exist.")
+        # Make sure all images are the same size
+        try:
+            from PIL import Image
+        except ImportError:
+            warnings.warn("Pillow is not installed. Cannot verify image size.")
+        else:
+            unplugged_image = Image.open(unplugged_file_path)
+            unplugged_low_image = Image.open(unplugged_low_file_path)
+            charging_image = Image.open(charging_file_path)
+            charging_low_image = Image.open(charging_low_file_path)
+            if unplugged_image.size != unplugged_low_image.size or unplugged_image.size != charging_image.size or \
+                    unplugged_image.size != charging_low_image.size:
+                raise ValueError("All battery images must be the same size.")
+
+        self.unplugged_file_path = unplugged_file_path
+        self.unplugged_file_name = os.path.basename(unplugged_file_path)
+        self.unplugged_low_file_path = unplugged_low_file_path
+        self.unplugged_low_file_name = os.path.basename(unplugged_low_file_path)
+        self.charging_file_path = charging_file_path
+        self.charging_file_name = os.path.basename(charging_file_path)
+        self.charging_low_file_path = charging_low_file_path
+        self.charging_low_file_name = os.path.basename(charging_low_file_path)
+        self.kind = 'battery'
+
+    def data_dict(self):
+        return {
+            "unplugged": self.unplugged_file_name,
+            "unplugged-low": self.unplugged_low_file_name,
+            "charging": self.charging_file_name,
+            "charging-low": self.charging_low_file_name
+        }

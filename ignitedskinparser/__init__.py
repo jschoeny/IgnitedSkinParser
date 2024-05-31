@@ -5,7 +5,7 @@ from .types import (
     Asset, Size, Rect, ExtendedEdges, Item, Screen, Representation
 )
 from .live_skin import (
-    Color, Address, BitInfo, DecryptionMethod, Image, CircularHP, RectangularHP, Number, Text, IndexedText
+    Color, Address, BitInfo, DecryptionMethod, Image, CircularHP, RectangularHP, Number, Text, IndexedText, Battery
 )
 from .skin import IgnitedSkin, DeltaSkin
 
@@ -21,6 +21,7 @@ class LiveSkin:
     Number = Number
     Text = Text
     IndexedText = IndexedText
+    Battery = Battery
 
 
 __all__ = [
