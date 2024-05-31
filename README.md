@@ -29,6 +29,12 @@ import ignitedskinparser as isp
 
 ...and you're ready to start creating your custom skin!
 
+*Optional: If you want to verify LiveSkin image sizes, you can install the `Pillow` package:*
+
+```bash
+pip install pillow
+```
+
 ## Usage
 
 ### Creating a Skin

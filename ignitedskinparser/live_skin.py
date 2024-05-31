@@ -1,4 +1,5 @@
 import os
+import warnings
 from abc import abstractmethod, ABC
 
 
@@ -127,6 +128,15 @@ class Image(LiveSkinItems):
         super().__init__(frame, decryption_method)
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"The file {file_path} does not exist.")
+        # Make sure the image size is a multiple of tiled_image_size
+        try:
+            from PIL import Image
+        except ImportError:
+            warnings.warn("Pillow is not installed. Cannot verify image size.")
+        else:
+            image = Image.open(file_path)
+            if image.size[0] % tiled_image_size.width != 0 and image.size[1] % tiled_image_size.height != 0:
+                raise ValueError("The image size must be a multiple of the tiled image size.")
         self.file_path = file_path
         self.file_name = os.path.basename(file_path)
         self.address = address
