@@ -228,7 +228,7 @@ class Representation:
         # self.assets can only contain either one resizable asset or multiple non-resizable assets, but not both
         if asset.size == AssetSize.RESIZABLE and any(a.size == AssetSize.RESIZABLE for a in self.__assets):
             raise ValueError("Only one resizable asset can be added to a representation.")
-        elif asset.size != AssetSize.RESIZABLE and any(a.size == AssetSize.RESIZABLE for a in self.__assets):
+        elif asset.size != AssetSize.RESIZABLE and asset.size != AssetSize.PREVIEW and any(a.size == AssetSize.RESIZABLE for a in self.__assets):
             raise ValueError("Non-resizable assets cannot be added to a representation with a resizable asset.")
         self.__assets.append(asset)
 
