@@ -98,11 +98,17 @@ class IgnitedSkin(DeltaSkin):
     def __init__(self, name, identifier, game_type_identifier: GameTypeIdentifier, debug=False):
         super().__init__(name, identifier, game_type_identifier, debug, allow_ignited_elements=True)
         self.alt_representation: [Representation] = []
+        self.game_identifier_hash = None
+        self.game_name = None
 
     def __check_for_alt_representation_duplicates(self, representation: Representation):
         for rep in self.alt_representation:
             if rep.device == representation.device and rep.display_type == representation.display_type and rep.orientation == representation.orientation:
                 raise ValueError(f"Alt representation for device {rep.device}, display type {rep.display_type}, and orientation {rep.orientation} already exists.")
+
+    def set_game_identifier_hash(self, game_identifier_hash: str, game_name: str):
+        self.game_identifier_hash = game_identifier_hash
+        self.game_name = game_name
 
     def add_alt_representation(self, representation: Representation):
         # Ensure the representation is unique (by device, display type, and orientation)
@@ -117,6 +123,10 @@ class IgnitedSkin(DeltaSkin):
             'debug': self.debug,
             'representations': {}
         }
+
+        if self.game_identifier_hash:
+            output['gameIdentifier'] = self.game_identifier_hash
+            output['gameName'] = self.game_name
 
         for i, rep in enumerate(self.representations):
             device: Device = rep.device
